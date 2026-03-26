@@ -1,6 +1,6 @@
-﻿# Task Management API
+﻿# Trading Platform API
 
-This is a Task Management API built with Spring Boot, Java, and PostgreSQL. It allows users to manage tasks and user information.
+This is a trading platform API built with Spring Boot, Java, and PostgreSQL. It supports user management, order entry, and order processing flows.
 
 ## Prerequisites
 
@@ -14,9 +14,9 @@ This is a Task Management API built with Spring Boot, Java, and PostgreSQL. It a
 ### Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/task-management-api.git
+git clone https://github.com/yourusername/trading-platform-api.git
 
-cd task-management-api
+cd trading-platform-api
 
 docker-compose up -d
 
@@ -27,7 +27,7 @@ docker-compose up -d
 ```yaml
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/task_management
+    url: jdbc:postgresql://localhost:5432/trading_platform
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
@@ -43,10 +43,13 @@ spring:
       hibernate:
         format_sql: true
   application:
-    name: Task Management Application
+    name: Trading Platform API
 
 server:
-  port: 8080
+  port: 8081
+
+market-data:
+  base-url: http://localhost:8080
 ```
 
 ```yaml
@@ -55,9 +58,9 @@ version: '3.8'
 services:
   db:
     image: postgres:latest
-    container_name: task_management_db
+    container_name: trading_platform_db
     environment:
-      POSTGRES_DB: task_management
+      POSTGRES_DB: trading_platform
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
@@ -67,13 +70,14 @@ services:
 
   app:
     image: openjdk:17-jdk-slim
-    container_name: spring_boot_app
+    container_name: trading_platform_api
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/task_management
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/trading_platform
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
+      MARKET_DATA_BASE_URL: http://host.docker.internal:8080
     ports:
-      - "8080:8080"
+      - "8081:8081"
     volumes:
       - .:/app
     working_dir: /app

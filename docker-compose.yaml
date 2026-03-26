@@ -1,9 +1,9 @@
 services:
   db:
     image: postgres:16
-    container_name: task_management_db
+    container_name: trading_platform_db
     environment:
-      POSTGRES_DB: task_management
+      POSTGRES_DB: trading_platform
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
@@ -11,21 +11,22 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-#  app:
-#    image: openjdk:17-jdk-slim
-#    container_name: spring_boot_app
-#    environment:
-#      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/task_management
-#      SPRING_DATASOURCE_USERNAME: postgres
-#      SPRING_DATASOURCE_PASSWORD: postgres
-#    ports:
-#      - "8081:8081"
-#    volumes:
-#      - .:/app
-#    working_dir: /app
-#    command: ./gradlew bootRun
-#    depends_on:
-#      - db
+  app:
+    image: eclipse-temurin:17-jdk-jammy
+    container_name: trading_platform_api
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/trading_platform
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      MARKET_DATA_BASE_URL: http://host.docker.internal:8080
+    ports:
+      - "8081:8081"
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: sh ./gradlew bootRun
+    depends_on:
+      - db
 
 volumes:
   postgres_data:

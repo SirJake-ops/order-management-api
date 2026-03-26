@@ -11,9 +11,11 @@ import java.util.List;
 public interface OrderMapper {
     OrderDto toDto(Order order);
     
-    @Mapping(target = "expiresAt", ignore = true)
+    @Mapping(target = "deleted", ignore = true)
     Order toEntity(OrderDto orderDto);
 
     List<OrderDto> toDtos(List<Order> orders);
+
+
     List<Order> toEntities(List<OrderDto> orderDtos);
 }

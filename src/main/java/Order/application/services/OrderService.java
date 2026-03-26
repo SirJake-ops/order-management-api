@@ -1,5 +1,7 @@
 package Order.application.services;
 
+import MarketData.client.MarketDataClient;
+import MarketData.client.dtos.MarketPriceResponse;
 import Order.application.exceptions.OrderException;
 import Order.domain.dtos.OrderDto;
 import Order.domain.mapper.OrderMapper;
@@ -14,6 +16,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestClientException;
 
 import java.math.BigDecimal;
 import java.util.Optional;
@@ -25,16 +28,19 @@ public class OrderService {
     private final OrderMapper orderMapper;
     private final OrderRepository orderRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final MarketDataClient marketDataClient;
 
-    public OrderService(OrderMapper orderMapper, OrderRepository orderRepository, ApplicationEventPublisher applicationEventPublisher) {
+    public OrderService(OrderMapper orderMapper, OrderRepository orderRepository, ApplicationEventPublisher applicationEventPublisher, MarketDataClient marketDataClient) {
         this.orderMapper = orderMapper;
         this.orderRepository = orderRepository;
         this.applicationEventPublisher = applicationEventPublisher;
+        this.marketDataClient = marketDataClient;
     }
 
     @Transactional
     public OrderDto createOrder(@Valid OrderDto orderDto) {
         Order order = orderMapper.toEntity(orderDto);
+        enrichOrderWithMarketData(order);
         orderRepository.save(order);
         applicationEventPublisher.publishEvent(new OrderPlacedEvent(this, order));
         return orderMapper.toDto(order);
@@ -66,6 +72,21 @@ public class OrderService {
             return  orderMapper.toDto(orderCancelled);
         } else {
             throw new OrderException("Order not found");
+        }
+    }
+
+    private void enrichOrderWithMarketData(Order order) {
+        if (order.getSymbol() == null || order.getOrderType() != OrderType.MARKET) {
+            return;
+        }
+
+        try {
+            MarketPriceResponse priceResponse = marketDataClient.getLatestPrice(order.getSymbol())
+                    .orElseThrow(() -> new OrderException("No market data available for symbol: " + order.getSymbol()));
+
+            order.setPrice(BigDecimal.valueOf(priceResponse.last()));
+        } catch (RestClientException exception) {
+            throw new OrderException("Unable to retrieve market data for symbol: " + order.getSymbol());
         }
     }
 }

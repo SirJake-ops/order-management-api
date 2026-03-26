@@ -7,7 +7,7 @@ spring:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
   datasource:
-    url: jdbc:postgresql://localhost:5432/task_management
+    url: jdbc:postgresql://localhost:5432/trading_platform
     username: ${DB_USERNAME:postgres}
     password: ${DB_PASSWORD:postgres}
     driver-class-name: org.postgresql.Driver
@@ -24,7 +24,10 @@ spring:
       hibernate:
         format_sql: true
   application:
-    name: Task Management Application
+    name: Trading Platform API
 
 server:
   port: 8081
+
+market-data:
+  base-url: ${MARKET_DATA_BASE_URL:http://localhost:8080}

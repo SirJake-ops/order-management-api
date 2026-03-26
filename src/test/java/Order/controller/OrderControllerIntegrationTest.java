@@ -31,7 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
                                                      classes = {shared.common.configs.WebSecurityConfig.class}))
 @EnableJpaRepositories(basePackages = {"Order.infrastructure.persistence"})
 @EntityScan(basePackages = {"Order.domain.models", "shared.common.entities"})
-@SpringBootTest(classes = org.example.taskmanagement.TaskManagementApplication.class)
+@SpringBootTest(classes = org.example.taskmanagement.TradingPlatformApplication.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class OrderControllerIntegrationTest {
     @Autowired

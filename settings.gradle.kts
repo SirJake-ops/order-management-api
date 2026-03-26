@@ -1,1 +1,1 @@
-rootProject.name = "TaskManagement"
+rootProject.name = "TradingPlatform"
