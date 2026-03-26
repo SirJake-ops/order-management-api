@@ -31,4 +31,9 @@ public class ApplicationUserRepositoryAdapter implements IApplicationUserReposit
     public Optional<TradingUser> findByEmail(String email) {
         return applicationUserRepository.findByEmail_Email(email);
     }
+
+    @Override
+    public TradingUser save(TradingUser tradingUser) {
+        return applicationUserRepository.save(tradingUser);
+    }
 }

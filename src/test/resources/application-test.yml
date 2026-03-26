@@ -1,12 +1,36 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:testdb;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE
-    driver-class-name: org.h2.Driver
-    username: sa
-    password: 
+    url: jdbc:postgresql://${TEST_DB_HOST:localhost}:${TEST_DB_PORT:5432}/${TEST_DB_NAME:trading_platform_test}
+    driver-class-name: org.postgresql.Driver
+    username: ${TEST_DB_USERNAME:${DB_USERNAME:postgres}}
+    password: ${TEST_DB_PASSWORD:${DB_PASSWORD:postgres}}
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: validate
+    show-sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    properties:
+      hibernate:
+        format_sql: true
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: test-client
+            client-secret: test-secret
 
 market-data:
   base-url: http://localhost:8080
+
+app:
+  frontend:
+    url: http://localhost:3000
+  auth:
+    jwt:
+      secret: test-jwt-secret-change-this-to-a-long-random-value-1234567890
+      expiration-ms: 3600000

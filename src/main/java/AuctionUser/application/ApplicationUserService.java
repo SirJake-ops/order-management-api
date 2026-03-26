@@ -1,15 +1,15 @@
 package AuctionUser.application;
 
-import AuctionUser.infrastructure.repos.ApplicationUserRepositoryAdapter;
+import AuctionUser.domain.IApplicationUserRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 public class ApplicationUserService {
-    private final ApplicationUserRepositoryAdapter applicationUserRepositoryAdapter;
+    private final IApplicationUserRepository applicationUserRepository;
 
 
-    public ApplicationUserService(ApplicationUserRepositoryAdapter applicationUserRepositoryAdapter) {
-        this.applicationUserRepositoryAdapter = applicationUserRepositoryAdapter;
+    public ApplicationUserService(IApplicationUserRepository applicationUserRepository) {
+        this.applicationUserRepository = applicationUserRepository;
     }
 
 

@@ -4,10 +4,12 @@ import Order.domain.IOrderRepository;
 import Order.domain.models.Order;
 import Order.infrastructure.exceptions.PersistenceException;
 import Order.infrastructure.persistence.OrderRepository;
+import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 import java.util.UUID;
 
+@Component
 public class OrderRepositoryAdapter implements IOrderRepository {
 
     private final OrderRepository orderRepository;
@@ -17,12 +19,8 @@ public class OrderRepositoryAdapter implements IOrderRepository {
     }
 
     @Override
-    public Optional<Order> findById(UUID id) throws PersistenceException {
-        try {
-            return orderRepository.findById(id);
-        } catch (Exception ex) {
-            throw new PersistenceException("Order not found.");
-        }
+    public Optional<Order> findById(UUID id) {
+        return orderRepository.findById(id);
     }
 
     @Override
@@ -34,7 +32,7 @@ public class OrderRepositoryAdapter implements IOrderRepository {
     public Order update(Order order) throws PersistenceException {
         boolean isOrderCreated = orderRepository.findById(order.getId()).isEmpty();
 
-        if (isOrderCreated) {
+        if (!isOrderCreated) {
             return orderRepository.save(order);
         } else {
             throw new PersistenceException("Order cannot be updated.");

@@ -1,8 +1,9 @@
 package Order.application.services;
 
+import AuctionUser.domain.IApplicationUserRepository;
+import AuctionUser.domain.exceptions.UserNotFoundException;
 import AuctionUser.domain.models.TradingUser;
-import AuctionUser.infrastructure.persistence.ApplicationUserRepository;
-import Order.application.exceptions.OrderException;
+import Order.application.exceptions.InsufficientBalanceException;
 import Order.domain.models.Order;
 import Order.enums.Side;
 import jakarta.transaction.Transactional;
@@ -14,9 +15,9 @@ import java.math.BigDecimal;
 @Slf4j
 @Service
 public class UserBalanceService {
-    private final ApplicationUserRepository applicationUserRepository;
+    private final IApplicationUserRepository applicationUserRepository;
 
-    public UserBalanceService(ApplicationUserRepository applicationUserRepository) {
+    public UserBalanceService(IApplicationUserRepository applicationUserRepository) {
         this.applicationUserRepository = applicationUserRepository;
     }
 
@@ -25,6 +26,9 @@ public class UserBalanceService {
         BigDecimal totalAmount = tradeQuantity.multiply(tradePrice);
 
         TradingUser buyer = getUserForOrder(incomingOrder.getSide() == Side.BUY ? incomingOrder : bookOrder);
+        if (buyer.getAccountBalance().compareTo(totalAmount) < 0) {
+            throw new InsufficientBalanceException(buyer.getId().toString());
+        }
         buyer.setAccountBalance(buyer.getAccountBalance().subtract(totalAmount));
         applicationUserRepository.save(buyer);
 
@@ -34,6 +38,6 @@ public class UserBalanceService {
     }
 
     private TradingUser getUserForOrder(Order order) {
-       return applicationUserRepository.findById(order.getId()) .orElseThrow(() -> new OrderException("User cannot be found."));
+       return applicationUserRepository.getUserById(order.getId()).orElseThrow(() -> new UserNotFoundException(order.getId().toString()));
     }
 }

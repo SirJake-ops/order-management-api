@@ -1,2 +1,2 @@
 INSERT INTO  APPLICATION_USER (ID, USERNAME, PASSWORD, FIRST_NAME, LAST_NAME, EMAIL, ROLE)
-VALUES (2, 'TEST_ADMIN', 'password', 'Bob', 'Smith', 'Bob_Smith@dummy.com', 'ADMIN');
+VALUES (2, 'TEST_ADMIN', 'password', 'Bob', 'Smith', 'bob_smith_test@dummy.com', 'ADMIN');

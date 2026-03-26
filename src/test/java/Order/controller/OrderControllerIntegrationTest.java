@@ -1,5 +1,6 @@
 package Order.controller;
 
+import AuctionUser.infrastructure.persistence.ApplicationUserRepository;
 import Order.domain.dtos.OrderDto;
 import Order.enums.OrderStatus;
 import Order.enums.OrderType;
@@ -15,22 +16,22 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.MediaType;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
 
 import java.math.BigDecimal;
 
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.jsonPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles("test")
-@ComponentScan(basePackages = {"org.example.taskmanagement", "Order", "shared"},
+@ComponentScan(basePackages = {"org.example.taskmanagement", "Order", "shared", "MarketData", "AuctionUser"},
                excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
                                                      classes = {shared.common.configs.WebSecurityConfig.class}))
-@EnableJpaRepositories(basePackages = {"Order.infrastructure.persistence"})
-@EntityScan(basePackages = {"Order.domain.models", "shared.common.entities"})
+@EnableJpaRepositories(basePackages = {"Order.infrastructure.persistence", "AuctionUser.infrastructure.persistence"})
+@EntityScan(basePackages = {"Order.domain.models", "shared.common.entities", "AuctionUser.domain.models"})
 @SpringBootTest(classes = org.example.taskmanagement.TradingPlatformApplication.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class OrderControllerIntegrationTest {
@@ -39,6 +40,12 @@ public class OrderControllerIntegrationTest {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private SimpMessagingTemplate simpMessagingTemplate;
+
+    @MockitoBean
+    private ApplicationUserRepository applicationUserRepository;
 
 
     @Test
@@ -136,7 +143,7 @@ public class OrderControllerIntegrationTest {
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/v1/orders/" + "00000000-0000-0000-0000-000000000000" + "/modify")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updatedOrderDto)))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -173,6 +180,6 @@ public class OrderControllerIntegrationTest {
     public void shouldReturnBadRequest_WhenCancelingNonExistingOrder() throws Exception {
         mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put("/api/v1/orders/" + "00000000-0000-0000-0000-000000000000" + "/cancel")
                         .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isInternalServerError());
+                .andExpect(status().isNotFound());
     }
 }

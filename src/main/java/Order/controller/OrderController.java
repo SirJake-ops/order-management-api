@@ -1,12 +1,10 @@
 package Order.controller;
 
 import Order.application.services.OrderService;
-import Order.application.exceptions.OrderException;
 import Order.domain.dtos.LimitOrderDto;
 import Order.domain.dtos.OrderDto;
 import Order.domain.mapper.OrderMapper;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -27,12 +25,8 @@ public class OrderController {
 
     @PostMapping
     public ResponseEntity<OrderDto> createOrder(@Valid @RequestBody OrderDto orderDto) {
-        try {
-            OrderDto savedOrder = orderService.createOrder(orderDto);
-            return ResponseEntity.ok(savedOrder);
-        } catch (OrderException ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        OrderDto savedOrder = orderService.createOrder(orderDto);
+        return ResponseEntity.ok(savedOrder);
     }
 
     @PostMapping("/market")
@@ -56,21 +50,13 @@ public class OrderController {
 
     @PutMapping("/{id}/modify")
     public ResponseEntity<OrderDto> updateOrder(@Valid @RequestBody OrderDto orderDto, @PathVariable UUID id) {
-        try {
-            OrderDto updatedOrder = orderService.updateOrder(orderDto, id);
-            return ResponseEntity.ok(updatedOrder);
-        } catch (OrderException ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        OrderDto updatedOrder = orderService.updateOrder(orderDto, id);
+        return ResponseEntity.ok(updatedOrder);
     }
 
     @PutMapping("/{id}/cancel")
     public ResponseEntity<OrderDto> cancelOrder(@PathVariable UUID id) {
-        try {
-            OrderDto canceledOrder = orderService.cancelOrder(id);
-            return ResponseEntity.ok(canceledOrder);
-        } catch (OrderException ex) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
+        OrderDto canceledOrder = orderService.cancelOrder(id);
+        return ResponseEntity.ok(canceledOrder);
     }
 }
