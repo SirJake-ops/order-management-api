@@ -6,12 +6,11 @@ import Order.domain.dtos.OrderDto;
 import Order.domain.mapper.OrderMapper;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-@Controller
+@RestController
 @RequestMapping("/api/v1/orders")
 public class OrderController {
 

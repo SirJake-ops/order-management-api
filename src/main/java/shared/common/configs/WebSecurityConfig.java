@@ -60,7 +60,7 @@ public class WebSecurityConfig {
 
                 ).csrf(c -> c
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
-                        .ignoringRequestMatchers("/api/v1/auth/token", "/api/v1/auth/session", "/api/v1/auth/logout")
+                        .ignoringRequestMatchers("/api/**")
                 )
                 .cors(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
