@@ -16,7 +16,7 @@ public class FlywayConfig {
     @Value("${spring.datasource.password:postgres}")
     private String datasourcePassword;
 
-    @Bean
+    @Bean(initMethod = "migrate")
     public Flyway flyway() {
         return Flyway.configure()
                 .dataSource(datasourceUrl, datasourceUsername, datasourcePassword)
