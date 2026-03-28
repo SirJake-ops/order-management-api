@@ -12,7 +12,9 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 public class TradingPlatformApplication {
 
     public static void main(String[] args) {
-        Dotenv dotenv = Dotenv.load();
+        Dotenv.configure()
+                .ignoreIfMissing()
+                .load();
         SpringApplication.run(TradingPlatformApplication.class, args);
     }
 

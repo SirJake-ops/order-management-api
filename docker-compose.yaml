@@ -3,30 +3,39 @@ services:
     image: postgres:16
     container_name: trading_platform_db
     environment:
-      POSTGRES_DB: trading_platform
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-trading_platform}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-trading_platform}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   app:
-    image: eclipse-temurin:17-jdk-jammy
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: trading-platform-api:latest
     container_name: trading_platform_api
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/trading_platform
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-      MARKET_DATA_BASE_URL: http://host.docker.internal:8080
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-trading_platform}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
+      JWT_SECRET: ${JWT_SECRET:-change-this-jwt-secret}
+      MARKET_DATA_BASE_URL: ${MARKET_DATA_BASE_URL:-http://host.docker.internal:8080}
+      MARKET_DATA_WEBSOCKET_URL: ${MARKET_DATA_WEBSOCKET_URL:-ws://host.docker.internal:8080/ws}
     ports:
       - "8081:8081"
-    volumes:
-      - .:/app
-    working_dir: /app
-    command: sh ./gradlew bootRun
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 volumes:
   postgres_data:

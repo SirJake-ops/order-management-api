@@ -1,21 +1,21 @@
-FROM ubuntu:latest
-LABEL authors="jake"
-FROM openjdk:17-jdk-slim
+FROM eclipse-temurin:23-jdk AS build
 
-# Install Gradle
-RUN apt-get update && apt-get install -y curl unzip && \
-    curl -s "https://get.sdkman.io" | bash && \
-    bash -c "source /root/.sdkman/bin/sdkman-init.sh && sdk install gradle"
-
-# Set working directory
 WORKDIR /app
 
-# Copy project files
-COPY . .
-
-# Ensure Gradle wrapper is executable
+COPY gradlew gradlew.bat settings.gradle.kts build.gradle.kts ./
+COPY gradle ./gradle
 RUN chmod +x gradlew
 
-# Run the application
-CMD ["./gradlew", "bootRun"]
-ENTRYPOINT ["top", "-b"]
+COPY src ./src
+
+RUN ./gradlew bootJar --no-daemon
+
+FROM eclipse-temurin:23-jre
+
+WORKDIR /app
+
+COPY --from=build /app/build/libs/*.jar /app/app.jar
+
+EXPOSE 8081
+
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]
