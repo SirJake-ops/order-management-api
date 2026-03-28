@@ -31,6 +31,9 @@ server:
 
 market-data:
   base-url: ${MARKET_DATA_BASE_URL:http://localhost:8080}
+  websocket:
+    enabled: ${MARKET_DATA_WEBSOCKET_ENABLED:true}
+    url: ${MARKET_DATA_WEBSOCKET_URL:ws://localhost:8080/ws}
 
 app:
   frontend:

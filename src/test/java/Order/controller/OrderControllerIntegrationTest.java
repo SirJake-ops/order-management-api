@@ -9,12 +9,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.http.MediaType;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.test.context.ActiveProfiles;
@@ -30,8 +28,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ComponentScan(basePackages = {"org.example.taskmanagement", "Order", "shared", "MarketData", "AuctionUser"},
                excludeFilters = @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE,
                                                      classes = {shared.common.configs.WebSecurityConfig.class}))
-@EnableJpaRepositories(basePackages = {"Order.infrastructure.persistence", "AuctionUser.infrastructure.persistence"})
-@EntityScan(basePackages = {"Order.domain.models", "shared.common.entities", "AuctionUser.domain.models"})
 @SpringBootTest(classes = org.example.taskmanagement.TradingPlatformApplication.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class OrderControllerIntegrationTest {
