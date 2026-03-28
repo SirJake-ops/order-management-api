@@ -2,7 +2,11 @@ package Order.application.services;
 
 import MarketData.client.MarketDataClient;
 import MarketData.client.dtos.MarketPriceResponse;
+import Order.application.exceptions.MarketDataUnavailableException;
+import Order.application.exceptions.MarketPriceNotFoundException;
 import Order.application.exceptions.OrderException;
+import Order.application.exceptions.OrderNotFoundException;
+import Order.domain.IOrderRepository;
 import Order.domain.dtos.OrderDto;
 import Order.domain.mapper.OrderMapper;
 import Order.domain.models.Order;
@@ -11,7 +15,6 @@ import Order.enums.OrderType;
 import Order.enums.Side;
 import Order.events.event.OrderCancelledEvent;
 import Order.events.event.OrderPlacedEvent;
-import Order.infrastructure.persistence.OrderRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.context.ApplicationEventPublisher;
@@ -26,11 +29,11 @@ import java.util.UUID;
 public class OrderService {
 
     private final OrderMapper orderMapper;
-    private final OrderRepository orderRepository;
+    private final IOrderRepository orderRepository;
     private final ApplicationEventPublisher applicationEventPublisher;
     private final MarketDataClient marketDataClient;
 
-    public OrderService(OrderMapper orderMapper, OrderRepository orderRepository, ApplicationEventPublisher applicationEventPublisher, MarketDataClient marketDataClient) {
+    public OrderService(OrderMapper orderMapper, IOrderRepository orderRepository, ApplicationEventPublisher applicationEventPublisher, MarketDataClient marketDataClient) {
         this.orderMapper = orderMapper;
         this.orderRepository = orderRepository;
         this.applicationEventPublisher = applicationEventPublisher;
@@ -47,7 +50,7 @@ public class OrderService {
     }
 
     public OrderDto updateOrder(@Valid OrderDto orderDto, UUID id) {
-        Optional<Order> order = orderRepository.findOrderById(id);
+        Optional<Order> order = orderRepository.findById(id);
         if (order.isPresent()) {
             order.get().setPrice(orderDto.getPrice() != null ? orderDto.getPrice() : BigDecimal.ZERO);
             order.get().setQuantity(orderDto.getQuantity() != null ? orderDto.getQuantity() : BigDecimal.ZERO);
@@ -58,20 +61,20 @@ public class OrderService {
             order.get().setStatus(orderDto.getStatus() != null ? orderDto.getStatus() : OrderStatus.PENDING);
             return orderMapper.toDto(orderRepository.save(order.get()));
         } else {
-            throw new OrderException("Order not found");
+            throw new OrderNotFoundException(id.toString());
         }
     }
 
     @Transactional
     public OrderDto cancelOrder(UUID id) {
-        Optional<Order> order = orderRepository.findOrderById(id);
+        Optional<Order> order = orderRepository.findById(id);
         if (order.isPresent()) {
             order.get().setStatus(OrderStatus.CANCELLED);
             Order orderCancelled = orderRepository.save(order.get());
             applicationEventPublisher.publishEvent(new OrderCancelledEvent(this, orderCancelled));
             return  orderMapper.toDto(orderCancelled);
         } else {
-            throw new OrderException("Order not found");
+            throw new OrderNotFoundException(id.toString());
         }
     }
 
@@ -82,11 +85,11 @@ public class OrderService {
 
         try {
             MarketPriceResponse priceResponse = marketDataClient.getLatestPrice(order.getSymbol())
-                    .orElseThrow(() -> new OrderException("No market data available for symbol: " + order.getSymbol()));
+                    .orElseThrow(() -> new MarketPriceNotFoundException(order.getSymbol()));
 
             order.setPrice(BigDecimal.valueOf(priceResponse.last()));
         } catch (RestClientException exception) {
-            throw new OrderException("Unable to retrieve market data for symbol: " + order.getSymbol());
+            throw new MarketDataUnavailableException(order.getSymbol());
         }
     }
 }

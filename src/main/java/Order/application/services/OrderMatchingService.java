@@ -1,6 +1,7 @@
 package Order.application.services;
 
 import Order.application.exceptions.OrderException;
+import Order.domain.IOrderRepository;
 import Order.domain.models.Order;
 import Order.enums.OrderStatus;
 import Order.enums.OrderType;
@@ -8,13 +9,10 @@ import Order.enums.Side;
 import Order.events.event.OrderMatchedEvent;
 import Order.events.event.OrderPlacedEvent;
 import Order.events.event.OrderRejectEvent;
-import Order.infrastructure.persistence.OrderRepository;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -24,11 +22,11 @@ import java.util.Optional;
 @Service
 public class OrderMatchingService {
     private final OrderBookService orderBookService;
-    private final OrderRepository orderRepository;
+    private final IOrderRepository orderRepository;
     private final ApplicationEventPublisher eventPublisher;
     private final UserBalanceService userBalanceService;
 
-    public OrderMatchingService(OrderBookService orderBookService, OrderRepository orderRepository, ApplicationEventPublisher eventPublisher, UserBalanceService userBalanceService) {
+    public OrderMatchingService(OrderBookService orderBookService, IOrderRepository orderRepository, ApplicationEventPublisher eventPublisher, UserBalanceService userBalanceService) {
         this.orderBookService = orderBookService;
         this.orderRepository = orderRepository;
         this.eventPublisher = eventPublisher;
