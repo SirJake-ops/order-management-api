@@ -43,6 +43,7 @@ public class OrderService {
     @Transactional
     public OrderDto createOrder(@Valid OrderDto orderDto) {
         Order order = orderMapper.toEntity(orderDto);
+        initializeNewOrderDefaults(order);
         enrichOrderWithMarketData(order);
         orderRepository.save(order);
         applicationEventPublisher.publishEvent(new OrderPlacedEvent(this, order));
@@ -90,6 +91,16 @@ public class OrderService {
             order.setPrice(BigDecimal.valueOf(priceResponse.last()));
         } catch (RestClientException exception) {
             throw new MarketDataUnavailableException(order.getSymbol());
+        }
+    }
+
+    private void initializeNewOrderDefaults(Order order) {
+        if (order.getFilledQuantity() == null) {
+            order.setFilledQuantity(BigDecimal.ZERO);
+        }
+
+        if (order.getStatus() == null) {
+            order.setStatus(OrderStatus.PENDING);
         }
     }
 }

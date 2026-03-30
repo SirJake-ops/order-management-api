@@ -1,6 +1,8 @@
 package MarketData.client;
 
 import MarketData.client.dtos.MarketPriceResponse;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -12,9 +14,11 @@ import java.util.Optional;
 @Component
 public class MarketDataClient {
     private final RestClient restClient;
+    private final ObjectMapper objectMapper;
 
-    public MarketDataClient(@Qualifier("marketDataRestClient") RestClient restClient) {
+    public MarketDataClient(@Qualifier("marketDataRestClient") RestClient restClient, ObjectMapper objectMapper) {
         this.restClient = restClient;
+        this.objectMapper = objectMapper;
     }
 
     public Optional<MarketPriceResponse> getLatestPrice(String symbol) {
@@ -27,7 +31,16 @@ public class MarketDataClient {
                         }
 
                         if (response.getStatusCode().is2xxSuccessful()) {
-                            return Optional.ofNullable(response.bodyTo(MarketPriceResponse.class));
+                            final String body = response.bodyTo(String.class);
+                            if (body == null || body.isBlank()) {
+                                return Optional.empty();
+                            }
+
+                            try {
+                                return Optional.of(objectMapper.readValue(body, MarketPriceResponse.class));
+                            } catch (JsonProcessingException exception) {
+                                throw new RestClientException("Failed to parse market data response", exception);
+                            }
                         }
 
                         throw new RestClientException("Market data request failed with status " + response.getStatusCode().value());

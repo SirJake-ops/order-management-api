@@ -22,17 +22,14 @@ services:
       dockerfile: Dockerfile
     image: trading-platform-api:latest
     container_name: trading_platform_api
+    network_mode: host
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB:-trading_platform}
+      SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/${POSTGRES_DB:-trading_platform}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-change-me}
       JWT_SECRET: ${JWT_SECRET:-change-this-jwt-secret}
-      MARKET_DATA_BASE_URL: ${MARKET_DATA_BASE_URL:-http://host.docker.internal:8080}
-      MARKET_DATA_WEBSOCKET_URL: ${MARKET_DATA_WEBSOCKET_URL:-ws://host.docker.internal:8080/ws}
-    ports:
-      - "8081:8081"
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+      MARKET_DATA_BASE_URL: ${MARKET_DATA_BASE_URL:-http://localhost:8080}
+      MARKET_DATA_WEBSOCKET_URL: ${MARKET_DATA_WEBSOCKET_URL:-ws://localhost:8080/ws}
     depends_on:
       db:
         condition: service_healthy

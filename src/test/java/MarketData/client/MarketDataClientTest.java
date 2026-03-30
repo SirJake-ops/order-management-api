@@ -1,6 +1,7 @@
 package MarketData.client;
 
 import MarketData.client.dtos.MarketPriceResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,10 +37,12 @@ class MarketDataClientTest {
     private RestClient.RequestHeadersSpec.ConvertibleClientHttpResponse response;
 
     private MarketDataClient marketDataClient;
+    private ObjectMapper objectMapper;
 
     @BeforeEach
     void setUp() {
-        marketDataClient = new MarketDataClient(restClient);
+        objectMapper = new ObjectMapper();
+        marketDataClient = new MarketDataClient(restClient, objectMapper);
     }
 
     @Test
@@ -49,7 +52,7 @@ class MarketDataClientTest {
 
         mockGetRequest("BTC/USD");
         Mockito.when(response.getStatusCode()).thenReturn(HttpStatus.OK);
-        Mockito.when(response.bodyTo(MarketPriceResponse.class)).thenReturn(marketPriceResponse);
+        Mockito.when(response.bodyTo(String.class)).thenReturn(objectMapper.writeValueAsString(marketPriceResponse));
         Mockito.when(requestHeadersSpec.exchange(Mockito.<RestClient.RequestHeadersSpec.ExchangeFunction<Optional<MarketPriceResponse>>>any()))
                 .thenAnswer(invocation -> invocation.<RestClient.RequestHeadersSpec.ExchangeFunction<Optional<MarketPriceResponse>>>getArgument(0).exchange(request, response));
 
@@ -83,6 +86,20 @@ class MarketDataClientTest {
         RestClientException exception = Assertions.assertThrows(RestClientException.class, () -> marketDataClient.getLatestPrice("SOL/USD"));
 
         Assertions.assertEquals("Market data request failed with status 500", exception.getMessage());
+    }
+
+    @Test
+    @DisplayName("Should throw when market data response cannot be parsed")
+    public void shouldThrowException_WhenMarketDataResponseIsInvalidJson() throws IOException {
+        mockGetRequest("AAPL");
+        Mockito.when(response.getStatusCode()).thenReturn(HttpStatus.OK);
+        Mockito.when(response.bodyTo(String.class)).thenReturn("not-json");
+        Mockito.when(requestHeadersSpec.exchange(Mockito.<RestClient.RequestHeadersSpec.ExchangeFunction<Optional<MarketPriceResponse>>>any()))
+                .thenAnswer(invocation -> invocation.<RestClient.RequestHeadersSpec.ExchangeFunction<Optional<MarketPriceResponse>>>getArgument(0).exchange(request, response));
+
+        RestClientException exception = Assertions.assertThrows(RestClientException.class, () -> marketDataClient.getLatestPrice("AAPL"));
+
+        Assertions.assertEquals("Failed to parse market data response", exception.getMessage());
     }
 
     private void mockGetRequest(String symbol) {
