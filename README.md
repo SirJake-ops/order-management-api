@@ -107,9 +107,3 @@ If the C++ market data service is running locally on port `8080`, you can verify
 ```bash
 curl -i http://localhost:8080/api/market/prices/BTC%2FUSD
 ```
-
-Expected result:
-- `200 OK`
-- JSON response containing `symbol`, `bid`, `ask`, `last`, `volume`, and `timestamp`
-
-This is intended as a manual connectivity check, not an automated test, since the Java and C++ services may not always be running at the same time.
