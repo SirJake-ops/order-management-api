@@ -20,7 +20,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: trading-platform-api:latest
+    image: order-management-api:latest
     container_name: trading_platform_api
     network_mode: host
     environment:

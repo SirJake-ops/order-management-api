@@ -1,8 +1,8 @@
-﻿# Trading Platform API
+﻿# Order Management API
 
-This is a trading platform API built with Spring Boot, Java, and PostgreSQL. It supports user management, order entry, and order processing flows.
+This is an order management API built with Spring Boot, Java, and PostgreSQL. It supports user management, order entry, and order processing flows.
 
-This project is intended to run alongside the sibling C++ market-data service in `../fluffy-parakeet`. `probable-fiesta` is the trading API, and `fluffy-parakeet` supplies live market prices over HTTP and WebSocket.
+This project is intended to run alongside the sibling C++ market-data service in `../trading-exchange-engine`. `order-management-api` is the Java trading API, and `trading-exchange-engine` supplies live market prices over HTTP and WebSocket.
 
 ## Prerequisites
 
@@ -16,9 +16,9 @@ This project is intended to run alongside the sibling C++ market-data service in
 ### Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/trading-platform-api.git
+git clone https://github.com/SirJake-ops/order-management-api.git
 
-cd trading-platform-api
+cd order-management-api
 
 cp .env.example .env
 
@@ -82,7 +82,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: trading-platform-api:latest
+    image: order-management-api:latest
     container_name: trading_platform_api
     network_mode: host
     environment:
@@ -102,11 +102,11 @@ volumes:
 
 ## Running With The C++ Service
 
-`probable-fiesta` depends on `../fluffy-parakeet` for market-price lookups used by market-order creation.
+`order-management-api` depends on `../trading-exchange-engine` for market-price lookups used by market-order creation.
 
 Recommended local startup order:
 
-1. Start the C++ market-data service from `../fluffy-parakeet`
+1. Start the C++ market-data service from `../trading-exchange-engine`
 2. Confirm it responds on `8080`
 3. Start this API on `8081`
 
