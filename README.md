@@ -6,10 +6,12 @@ This project is intended to run alongside the sibling C++ market-data service in
 
 ## Prerequisites
 
-- Java 17 or higher
-- PostgreSQL 16.3
-- Gradle 7.6 or higher
-- Docker [Docker Installation Guide](https://docs.docker.com/get-docker/)
+- A Java 17 or newer runtime to start the Gradle wrapper
+- Docker with Docker Compose
+
+You do not need to install Gradle or Java 23 globally. The committed Gradle
+wrapper downloads the required Gradle version, and the build provisions its
+Java 23 toolchain automatically.
 
 ## Getting Started
 
@@ -24,7 +26,9 @@ cp .env.example .env
 
 # edit .env if you want different local credentials
 
-docker-compose up -d
+docker compose up -d
+
+./gradlew bootRun
 
 ```
 **Do not commit real secrets.** Local Docker credentials and app secrets should go in `.env`, which is gitignored.
