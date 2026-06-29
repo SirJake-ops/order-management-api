@@ -27,10 +27,11 @@ spring:
     name: Trading Platform API
 
 server:
-  port: 8081
+  port: 8082
 
 market-data:
   base-url: ${MARKET_DATA_BASE_URL:http://localhost:8080}
+  health-path: ${MARKET_DATA_HEALTH_PATH:/health}
   websocket:
     enabled: ${MARKET_DATA_WEBSOCKET_ENABLED:true}
     url: ${MARKET_DATA_WEBSOCKET_URL:ws://localhost:8080/ws}
@@ -54,3 +55,6 @@ management:
       probes:
         enabled: true
       show-details: always
+      group:
+        readiness:
+          include: readinessState,db,marketData
