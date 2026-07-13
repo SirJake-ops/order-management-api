@@ -47,16 +47,19 @@ public class WebSecurityConfig {
                                                    DaoAuthenticationProvider daoAuthenticationProvider) throws Exception {
         httpSecurity
                 .authorizeHttpRequests(a -> a.requestMatchers(
-                                "/",
-                                "/error",
-                                "/webjars/**",
-                                "/api/v1/auth/token",
-                                "/api/v1/auth/session",
-                                "/api/v1/auth/logout",
-                                "/oauth2/**",
-                                "/login/**"
-                        ).permitAll()
-                        .anyRequest().authenticated()
+                                        "/",
+                                        "/error",
+                                        "/webjars/**",
+                                        "/api/v1/auth/token",
+                                        "/api/v1/auth/session",
+                                        "/api/v1/auth/logout",
+                                        "/oauth2/**",
+                                        "/login/**",
+                                        "/actuator/health",
+                                        "/actuator/health/**",
+                                        "/actuator/info"
+                                ).permitAll()
+                                .anyRequest().authenticated()
 
                 ).csrf(c -> c
                         .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
